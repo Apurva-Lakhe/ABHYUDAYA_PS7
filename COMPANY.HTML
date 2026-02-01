@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Campus Placement | Recruiter</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: 'Inter', sans-serif;
+    background:
+        radial-gradient(circle at top left, #3b82f6, transparent 40%),
+        radial-gradient(circle at bottom right, #6366f1, transparent 40%),
+        #0f172a;
+    color:#e5e7eb;
+    min-height:100vh;
+}
+
+/* HEADER */
+header{
+    padding:20px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(15,23,42,0.6);
+    backdrop-filter: blur(12px);
+}
+
+header h2{
+    font-family:'Poppins', sans-serif;
+    font-weight:700;
+}
+
+header button{
+    background:white;
+    color:#1e3a8a;
+    border:none;
+    padding:8px 18px;
+    border-radius:20px;
+    font-weight:600;
+}
+
+/* LAYOUT */
+.container{
+    display:flex;
+}
+
+/* SIDEBAR */
+aside{
+    width:240px;
+    padding:30px;
+}
+
+aside h3{
+    font-family:'Poppins', sans-serif;
+    margin-bottom:20px;
+}
+
+aside ul{
+    list-style:none;
+}
+
+aside li{
+    padding:14px;
+    margin-bottom:12px;
+    border-radius:14px;
+    cursor:pointer;
+    background:rgba(255,255,255,0.06);
+    transition:0.3s;
+}
+
+aside li:hover, aside li.active{
+    background:linear-gradient(135deg,#2563eb,#4f46e5);
+}
+
+/* MAIN */
+main{
+    flex:1;
+    padding:40px;
+}
+
+.section{
+    display:none;
+}
+
+.section.active{
+    display:block;
+}
+
+/* DASHBOARD CARDS */
+.cards{
+    display:flex;
+    gap:25px;
+    margin-top:30px;
+}
+
+.card{
+    flex:1;
+    padding:28px;
+    border-radius:22px;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter: blur(14px);
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+    text-align:center;
+}
+
+.card h2{
+    font-size:36px;
+    font-family:'Poppins', sans-serif;
+    color:#bfdbfe;
+}
+
+/* GLASS BOX */
+.box{
+    margin-top:25px;
+    padding:28px;
+    border-radius:22px;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter: blur(14px);
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+}
+
+/* FORM */
+label{
+    font-size:13px;
+    opacity:0.8;
+}
+
+input, textarea{
+    width:100%;
+    padding:12px;
+    margin:8px 0 16px;
+    border-radius:14px;
+    border:none;
+    outline:none;
+    background:rgba(255,255,255,0.9);
+    color:#111827;
+}
+
+textarea{
+    height:80px;
+    resize:none;
+}
+
+.primary{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:16px;
+    background:linear-gradient(135deg,#3b82f6,#6366f1);
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* JOB & RECOMMEND */
+.item{
+    padding:14px;
+    border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
+.recommend{
+    margin-top:12px;
+    padding:14px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.18);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>Smart Campus Placement</h2>
+    <button>Logout</button>
+</header>
+
+<div class="container">
+
+<aside>
+    <h3>Recruiter Panel</h3>
+    <ul>
+        <li class="active" onclick="show('dash')">Dashboard</li>
+        <li onclick="show('post')">Post Job</li>
+        <li onclick="show('jobs')">Job Listings</li>
+        <li onclick="show('rec')">Recommendations</li>
+    </ul>
+</aside>
+
+<main>
+
+<!-- DASHBOARD -->
+<div id="dash" class="section active">
+    <h1 style="font-family:Poppins;">Recruitment Overview</h1>
+    <div class="cards">
+        <div class="card"><h2 id="jobCount">0</h2><p>Jobs Posted</p></div>
+        <div class="card"><h2>Auto</h2><p>Eligibility</p></div>
+        <div class="card"><h2>Bias-Free</h2><p>Shortlisting</p></div>
+    </div>
+</div>
+
+<!-- POST JOB -->
+<div id="post" class="section">
+    <h2>Post a New Job</h2>
+    <div class="box">
+        <label>Job Role</label>
+        <input id="role">
+
+        <label>Minimum CGPA</label>
+        <input id="cgpa" type="number" step="0.1">
+
+        <label>Allowed Branches</label>
+        <input id="branch">
+
+        <label>Required Skills</label>
+        <textarea id="skills"></textarea>
+
+        <button class="primary" onclick="postJob()">Post Job</button>
+    </div>
+</div>
+
+<!-- JOB LIST -->
+<div id="jobs" class="section">
+    <h2>Job Listings</h2>
+    <div id="jobList" class="box"></div>
+</div>
+
+<!-- RECOMMEND -->
+<div id="rec" class="section">
+    <h2>Recommended Candidates</h2>
+    <div id="recList" class="box"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+let jobs=[];
+
+const students=[
+ {id:"CAND-2041",branch:"CSE",cgpa:7.9,skills:["Python","SQL","React"]},
+ {id:"CAND-2188",branch:"IT",cgpa:6.8,skills:["Java","Spring"]},
+ {id:"CAND-2304",branch:"ECE",cgpa:7.3,skills:["Python","ML"]},
+ {id:"CAND-2457",branch:"CSE",cgpa:8.2,skills:["Django","SQL"]}
+];
+
+function show(id){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
+
+function postJob(){
+ const job={
+   role:role.value,
+   minCgpa:parseFloat(cgpa.value),
+   branches:branch.value.split(',').map(b=>b.trim()),
+   skills:skills.value.split(',').map(s=>s.trim())
+ };
+ jobs.push(job);
+ jobCount.innerText=jobs.length;
+ renderJobs(); renderRec();
+ alert("Job Posted");
+}
+
+function renderJobs(){
+ jobList.innerHTML="";
+ jobs.forEach(j=>{
+  jobList.innerHTML+=`<div class="item"><b>${j.role}</b><br>CGPA ≥ ${j.minCgpa}</div>`;
+ });
+}
+
+function renderRec(){
+ recList.innerHTML="";
+ jobs.forEach(j=>{
+  students.filter(s=>
+    s.cgpa>=j.minCgpa &&
+    j.branches.includes(s.branch) &&
+    j.skills.some(sk=>s.skills.includes(sk))
+  ).forEach(s=>{
+    recList.innerHTML+=`<div class="recommend">${s.id} → ${j.role}</div>`;
+  });
+ });
+}
+</script>
+
+</body>
+</html>

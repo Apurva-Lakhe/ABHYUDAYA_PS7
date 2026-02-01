@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPO Admin Portal | Placement Cell</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --light: #ecf0f1;
+            --danger: #e74c3c;
+            --success: #27ae60;
+        }
+        
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f7f6; }
+
+        /* --- LOGIN SECTION --- */
+        #login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
+        .login-box h2 { color: var(--primary); margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; color: #666; font-size: 0.9em; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn-login {
+            width: 100%; padding: 10px; background: var(--secondary); color: white;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 1em; transition: 0.3s;
+        }
+        .btn-login:hover { background: #2980b9; }
+
+        /* --- DASHBOARD SECTION --- */
+        #dashboard-container { display: none; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 250px; background: var(--primary); color: white; height: 100vh;
+            position: fixed; padding-top: 20px;
+        }
+        .sidebar h3 { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #34495e; padding-bottom: 20px; }
+        .nav-item { padding: 15px 25px; cursor: pointer; display: block; color: #bdc3c7; text-decoration: none; }
+        .nav-item:hover, .nav-item.active { background: var(--secondary); color: white; }
+
+        /* Main Content */
+        .main-content { margin-left: 250px; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .card h3 { color: var(--primary); margin-bottom: 15px; border-left: 4px solid var(--secondary); padding-left: 10px; }
+        
+        /* Form Layout */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+        }
+        
+        /* Table for Branch Stats */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; color: var(--primary); }
+        
+        .btn-save { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-size: 1em; }
+        .btn-save:hover { background: #219150; }
+        
+        /* Status Banner */
+        #status-banner {
+            background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: none; border: 1px solid #ffeeba;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="login-container">
+        <div class="login-box">
+            <h2>TPO Admin Login</h2>
+            <div class="input-group">
+                <label>Username / Email</label>
+                <input type="text" placeholder="tpo@college.edu" id="tpoUser" value="admin">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••" value="1234">
+            </div>
+            <button class="btn-login" onclick="login()">Access Dashboard</button>
+            <p style="margin-top: 15px; font-size: 0.8em; color: #888;">Authorized Personnel Only</p>
+        </div>
+    </div>
+
+    <div id="dashboard-container">
+        <div class="sidebar">
+            <h3>🎓 Placement Cell</h3>
+            <a href="#" class="nav-item">Dashboard Overview</a>
+            <a href="#" class="nav-item active">Company Relations Profile</a>
+            <a href="#" class="nav-item">Manage Students</a>
+            <a href="#" class="nav-item">Drive Scheduler</a>
+            <a href="#" class="nav-item" onclick="logout()">Logout</a>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>College Profile Management</h1>
+                <div style="text-align: right;">
+                    <strong>Welcome</strong><br>
+                    
+                </div>
+            </div>
+            
+            <div id="status-banner"></div>
+
+            <form onsubmit="saveData(event)">
+                
+                <div class="card">
+                    <h3>🏛️ General Institution Details</h3>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                        This information will be visible to companies on their "College Search" page.
+                    </p>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Institution Name</label>
+                            <input type="text" id="instName" value="Institute of Engineering & Technology" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>NIRF / Accreditation Ranking</label>
+                            <input type="text" id="nirfRank" placeholder="e.g. NBA Accredited, NAAC A++">
+                        </div>
+                        <div class="form-group">
+                            <label>College Website URL</label>
+                            <input type="url" id="colUrl" placeholder="https://college.edu">
+                        </div>
+                        <div class="form-group">
+                            <label>Placement Brochure (PDF Link)</label>
+                            <input type="file" id="brochure">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Current Batch Statistics (2025)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Total Eligible Students</label>
+                            <input type="number" id="totalStudents" placeholder="1200">
+                        </div>
+                        <div class="form-group">
+                            <label>Average CGPA of Batch</label>
+                            <input type="number" id="avgCgpa" step="0.1" placeholder="7.8">
+                        </div>
+                        <div class="form-group">
+                            <label>Tentative Placement Start Date</label>
+                            <input type="date" id="startDate">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>👥 Branch-wise Student Strength</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Branch / Department</th>
+                                <th>Total Students</th>
+                                <th>Available for Placement</th>
+                                <th>Top Skill Sets</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Computer Science (CSE)</td>
+                                <td><input type="number" id="cseTotal" style="width: 80px;"></td>
+                                <td><input type="number" id="cseAvail" style="width: 80px;"></td>
+                                <td><input type="text" id="cseSkills"></td>
+                            </tr>
+                            <tr>
+                                <td>Electronics (ECE)</td>
+                                <td><input type="number" id="eceTotal" style="width: 80px;"></td>
+                                <td><input type="number" id="eceAvail" style="width: 80px;"></td>
+                                <td><input type="text" id="eceSkills"></td>
+                            </tr>
+                            <tr>
+                                <td>Mechanical (ME)</td>
+                                <td><input type="number" id="meTotal" style="width: 80px;"></td>
+                                <td><input type="number" id="meAvail" style="width: 80px;"></td>
+                                <td><input type="text" id="meSkills"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>🏢 Logistics for Companies</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Available Infrastructure for Drives</label>
+                            <select id="infraSelect">
+                                <option value="">Select Option</option>
+                                <option value="labs">Computer Labs (500+ capacity)</option>
+                                <option value="audi">Auditorium Only</option>
+                                <option value="remote">Remote / Online Only</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Accommodation for Recruiters?</label>
+                            <select id="accomSelect">
+                                <option value="">Select Option</option>
+                                <option value="yes">Yes, Campus Guest House</option>
+                                <option value="no">No, Hotel Arrangement (Reimbursable)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message to Recruiters</label>
+                        <textarea id="msgRecruiters" rows="3" placeholder="Enter specific instructions..."></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: right;">
+                    <button type="button" class="btn-save" style="background: #95a5a6; margin-right: 10px;" onclick="resetForm()">Reset Changes</button>
+                    <button type="submit" class="btn-save">Save & Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC: LOGIN ---
+        function login() {
+            const user = document.getElementById("tpoUser").value;
+            if(user) {
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("dashboard-container").style.display = "block";
+                
+                // TRIGGER LOAD DATA
+                loadData();
+            } else {
+                alert("Please enter credentials");
+            }
+        }
+
+        function logout() {
+            document.getElementById("dashboard-container").style.display = "none";
+            document.getElementById("login-container").style.display = "flex";
+        }
+
+        // --- LOGIC: SAVE DATA TO LOCAL STORAGE ---
+        function saveData(e) {
+            e.preventDefault();
+
+            // Collect all data into one object
+            const tpoData = {
+                nirf: document.getElementById('nirfRank').value,
+                url: document.getElementById('colUrl').value,
+                total: document.getElementById('totalStudents').value,
+                avg: document.getElementById('avgCgpa').value,
+                start: document.getElementById('startDate').value,
+                end: document.getElementById('endDate').value,
+                
+                // Branch Data
+                cse: { t: document.getElementById('cseTotal').value, a: document.getElementById('cseAvail').value, s: document.getElementById('cseSkills').value },
+                ece: { t: document.getElementById('eceTotal').value, a: document.getElementById('eceAvail').value, s: document.getElementById('eceSkills').value },
+                me: { t: document.getElementById('meTotal').value, a: document.getElementById('meAvail').value, s: document.getElementById('meSkills').value },
+
+                // Logistics
+                infra: document.getElementById('infraSelect').value,
+                accom: document.getElementById('accomSelect').value,
+                msg: document.getElementById('msgRecruiters').value
+            };
+
+            // Save to browser memory
+            localStorage.setItem('collegeProfile', JSON.stringify(tpoData));
+
+            alert("✅ Data Saved Successfully!\nNext time you login, this data will be pre-filled.");
+            loadData(); // Refresh the view
+        }
+
+        // --- LOGIC: LOAD DATA FROM LOCAL STORAGE ---
+        function loadData() {
+            const savedString = localStorage.getItem('collegeProfile');
+            const banner = document.getElementById('status-banner');
+
+            if (savedString) {
+                // DATA EXISTS (Returning User)
+                const data = JSON.parse(savedString);
+
+                // Populate Fields
+                document.getElementById('nirfRank').value = data.nirf;
+                document.getElementById('colUrl').value = data.url;
+                document.getElementById('totalStudents').value = data.total;
+                document.getElementById('avgCgpa').value = data.avg;
+                document.getElementById('startDate').value = data.start;
+                document.getElementById('endDate').value = data.end;
+
+                document.getElementById('cseTotal').value = data.cse.t;
+                document.getElementById('cseAvail').value = data.cse.a;
+                document.getElementById('cseSkills').value = data.cse.s;
+
+                document.getElementById('eceTotal').value = data.ece.t;
+                document.getElementById('eceAvail').value = data.ece.a;
+                document.getElementById('eceSkills').value = data.ece.s;
+
+                document.getElementById('meTotal').value = data.me.t;
+                document.getElementById('meAvail').value = data.me.a;
+                document.getElementById('meSkills').value = data.me.s;
+
+                document.getElementById('infraSelect').value = data.infra;
+                document.getElementById('accomSelect').value = data.accom;
+                document.getElementById('msgRecruiters').value = data.msg;
+
+                // Show Banner
+                banner.style.display = 'block';
+                banner.innerHTML = "ℹ️ <strong>Welcome Back!</strong> Your previously saved profile has been loaded. You can edit and save changes.";
+                banner.style.backgroundColor = "#d4edda";
+                banner.style.borderColor = "#c3e6cb";
+                banner.style.color = "#155724";
+
+            } else {
+                // NO DATA (First Time User)
+                banner.style.display = 'block';
+                banner.innerHTML = "⚠️ <strong>Action Required:</strong> This is your first login. Please fill in all details to publish your college profile.";
+                banner.style.backgroundColor = "#fff3cd";
+                banner.style.borderColor = "#ffeeba";
+                banner.style.color = "#856404";
+            }
+        }
+
+        function resetForm() {
+            if(confirm("Are you sure you want to clear unsaved changes?")) {
+                loadData(); // Reloads from memory, undoing unsaved typing
+            }
+        }
+    </script>
+</body>
+</html>

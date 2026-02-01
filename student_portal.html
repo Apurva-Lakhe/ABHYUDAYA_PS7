@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Placement Portal</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --dark: #2c3e50;
+            --light: #f5f7fa;
+            --success: #27ae60;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--light); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        /* --- CONTAINER STYLES --- */
+        .container {
+            background: white; width: 800px; max-width: 95%; 
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            overflow: hidden; display: none; /* Hidden by default until logic runs */
+        }
+
+        /* --- LOGIN SCREEN --- */
+        #login-view { text-align: center; padding: 50px; display: none; width: 400px; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
+        .btn { 
+            background: var(--primary); color: white; padding: 12px 25px; 
+            border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%;
+        }
+        .btn:hover { background: #357abd; }
+
+        /* --- ONBOARDING FORM (First Time) --- */
+        #onboarding-view { padding: 30px; display: none; }
+        .form-section { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .form-section h3 { color: var(--dark); margin-bottom: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #555; }
+        .input-group input, .input-group select, .input-group textarea { 
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; 
+        }
+        .file-upload { border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 5px; background: #fafafa; }
+
+        /* --- DASHBOARD (Returning User) --- */
+        #dashboard-view { display: none; width: 100%; }
+        .dash-header { background: var(--dark); color: white; padding: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .dash-body { padding: 30px; }
+        .profile-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .stat-badge { 
+            display: inline-block; padding: 5px 12px; border-radius: 15px; 
+            background: var(--success); color: white; font-size: 12px; 
+        }
+        .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .data-row strong { color: #555; }
+        
+        /* Alert Message */
+        .alert { background: #fff3cd; color: #856404; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ffeeba; }
+
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="container" style="display: block;">
+        <h2 style="color: var(--dark); margin-bottom: 20px;">Student Login</h2>
+        <input type="text" id="username" class="login-input" placeholder="Roll Number (e.g. 21CSE045)">
+        <input type="password" class="login-input" placeholder="Password" value="12345">
+        <button class="btn" onclick="handleLogin()">Login</button>
+        <p style="margin-top:15px; font-size: 12px; color: #777;">System Check: Uses LocalStorage for Demo</p>
+    </div>
+
+    <div id="onboarding-view" class="container">
+        <div class="alert">⚠️ <strong>Action Required:</strong> Please complete your profile to enable job applications.</div>
+        <h2 style="margin-bottom: 20px;">Complete Your Profile</h2>
+        
+        <form onsubmit="saveProfile(event)">
+            <div class="form-section">
+                <h3>🎓 Academic Details</h3>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Current CGPA (Aggregate)</label>
+                        <input type="number" step="0.01" id="reg-cgpa" required placeholder="e.g. 8.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Standing Backlogs</label>
+                        <input type="number" id="reg-backlogs" required placeholder="e.g. 0">
+                    </div>
+                    <div class="input-group">
+                        <label>Branch</label>
+                        <select id="reg-branch">
+                            <option>Computer Science</option>
+                            <option>Information Tech</option>
+                            <option>Electronics (ECE)</option>
+                            <option>Mechanical</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Key Skills (Comma separated)</label>
+                        <input type="text" id="reg-skills" placeholder="Java, Python, SQL" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>📂 Mandatory Documents</h3>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Aadhar Card (PDF/IMG)</label>
+                        <input type="file" required class="file-upload">
+                    </div>
+                    <div class="input-group">
+                        <label>All Marksheets (Merged PDF)</label>
+                        <input type="file" required class="file-upload">
+                    </div>
+                    <div class="input-group">
+                        <label>Resume / CV</label>
+                        <input type="file" required class="file-upload">
+                    </div>
+                    <div class="input-group">
+                        <label>Passport Photo</label>
+                        <input type="file" required class="file-upload">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Save Profile & Enter Dashboard</button>
+        </form>
+    </div>
+
+    <div id="dashboard-view" class="container">
+        <div class="dash-header">
+            <div>
+                <h2 id="disp-name">Student Dashboard</h2>
+                <small id="disp-roll">Roll No: --</small>
+            </div>
+            <button class="btn" style="width: auto; background: #e74c3c;" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="dash-body">
+            <div class="profile-card">
+                <h3>My Academic Profile <span class="stat-badge">Verified</span></h3>
+                <div class="data-row">
+                    <strong>Current CGPA:</strong>
+                    <span id="view-cgpa">--</span>
+                </div>
+                <div class="data-row">
+                    <strong>Branch:</strong>
+                    <span id="view-branch">--</span>
+                </div>
+                <div class="data-row">
+                    <strong>Active Backlogs:</strong>
+                    <span id="view-backlogs" style="color: red; font-weight: bold;">--</span>
+                </div>
+                <div class="data-row">
+                    <strong>Verified Skills:</strong>
+                    <span id="view-skills">--</span>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h3>Document Status</h3>
+                <div class="data-row">
+                    <strong>Aadhar Card:</strong>
+                    <span style="color: var(--success);">✅ Uploaded on Server</span>
+                </div>
+                <div class="data-row">
+                    <strong>Marksheets:</strong>
+                    <span style="color: var(--success);">✅ Uploaded on Server</span>
+                </div>
+                <div class="data-row">
+                    <strong>Placement Resume:</strong>
+                    <span style="color: var(--success);">✅ Uploaded on Server</span>
+                </div>
+            </div>
+            
+            <button class="btn" style="background: var(--dark);">View Eligible Drives</button>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is already logged in and has a profile
+        function handleLogin() {
+            const user = document.getElementById('username').value;
+            if(!user) { alert("Enter Roll Number"); return; }
+
+            localStorage.setItem('currentUser', user);
+
+            // Check if this specific user has data saved
+            const savedData = localStorage.getItem('profile_' + user);
+
+            document.getElementById('login-view').style.display = 'none';
+            document.querySelector('.container').style.display = 'block'; // Ensure container logic works
+
+            if (savedData) {
+                // User exists -> Show Dashboard
+                loadDashboard(JSON.parse(savedData), user);
+            } else {
+                // First time -> Show Onboarding Form
+                document.getElementById('onboarding-view').style.display = 'block';
+                document.getElementById('dashboard-view').style.display = 'none';
+            }
+        }
+
+        // Save Profile Data (Run on Form Submit)
+        function saveProfile(e) {
+            e.preventDefault();
+            const user = localStorage.getItem('currentUser');
+
+            // Gather data from inputs
+            const profileData = {
+                cgpa: document.getElementById('reg-cgpa').value,
+                backlogs: document.getElementById('reg-backlogs').value,
+                branch: document.getElementById('reg-branch').value,
+                skills: document.getElementById('reg-skills').value,
+                // In a real app, we would upload files to a server here.
+                // For this demo, we assume the upload "succeeded".
+                docsUploaded: true 
+            };
+
+            // Save to LocalStorage (Simulating Database)
+            localStorage.setItem('profile_' + user, JSON.stringify(profileData));
+
+            alert("✅ Profile Completed! Redirecting to Dashboard...");
+            
+            // Switch View
+            document.getElementById('onboarding-view').style.display = 'none';
+            loadDashboard(profileData, user);
+        }
+
+        // Populate Dashboard
+        function loadDashboard(data, user) {
+            document.getElementById('dashboard-view').style.display = 'block';
+            
+            // Fill Text
+            document.getElementById('disp-roll').innerText = "Roll No: " + user;
+            document.getElementById('view-cgpa').innerText = data.cgpa;
+            document.getElementById('view-backlogs').innerText = data.backlogs;
+            document.getElementById('view-branch').innerText = data.branch;
+            document.getElementById('view-skills').innerText = data.skills;
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('currentUser'); // Clear session
+            location.reload(); // Refresh page
+        }
+    </script>
+</body>
+</html>
